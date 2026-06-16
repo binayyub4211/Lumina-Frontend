@@ -232,7 +232,7 @@ function reportUnknownError(
 
   void telemetryReporter({
     code,
-    message: getErrorMessage(error),
+    message: getErrorMessage(error) ?? null,
     source: "stellar-error-decoder",
     context,
   });
