@@ -1,0 +1,302 @@
+{
+  "tx_failed": {
+    "errorCode": "tx_failed",
+    "errorType": "transaction",
+    "severity": "error",
+    "userMessage": "The Stellar network rejected this transaction because at least one operation failed.",
+    "troubleshootingSteps": [
+      "Review the operation-specific error shown with this message.",
+      "Confirm the source account has enough XLM for fees and reserves.",
+      "Try again after refreshing the account state from the ledger."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_too_early": {
+    "errorCode": "tx_too_early",
+    "errorType": "transaction",
+    "severity": "warning",
+    "userMessage": "This transaction was submitted before its allowed start time.",
+    "troubleshootingSteps": [
+      "Wait until the scheduled start time and retry.",
+      "Check that your device clock is synced.",
+      "If this came from an automated flow, regenerate the transaction envelope."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_too_late": {
+    "errorCode": "tx_too_late",
+    "errorType": "transaction",
+    "severity": "warning",
+    "userMessage": "This transaction expired before it reached the Stellar network.",
+    "troubleshootingSteps": [
+      "Create a fresh transaction and sign it again.",
+      "Check your network connection before resubmitting.",
+      "If the issue repeats, increase the transaction time bounds."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_missing_operation": {
+    "errorCode": "tx_missing_operation",
+    "errorType": "transaction",
+    "severity": "error",
+    "userMessage": "The transaction did not include any operation to execute.",
+    "troubleshootingSteps": [
+      "Return to the previous step and build the transaction again.",
+      "Refresh the page if the action button was clicked before the form finished loading.",
+      "Contact support if the same action keeps creating an empty transaction."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_bad_seq": {
+    "errorCode": "tx_bad_seq",
+    "errorType": "transaction",
+    "severity": "warning",
+    "userMessage": "The account sequence number is out of date.",
+    "troubleshootingSteps": [
+      "Refresh the account balance and latest ledger state.",
+      "Avoid submitting the same signed transaction more than once.",
+      "Create and sign a new transaction before retrying."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_bad_auth": {
+    "errorCode": "tx_bad_auth",
+    "errorType": "authorization",
+    "severity": "error",
+    "userMessage": "The transaction is missing a required signature or was signed for the wrong network.",
+    "troubleshootingSteps": [
+      "Reconnect the wallet for {network}.",
+      "Confirm every required signer approved the transaction.",
+      "Make sure the wallet is not signing for testnet while the app is using mainnet."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_insufficient_balance": {
+    "errorCode": "tx_insufficient_balance",
+    "errorType": "funding",
+    "severity": "error",
+    "userMessage": "The source account does not have enough XLM to pay fees and maintain the required reserve.",
+    "troubleshootingSteps": [
+      "Add XLM to {accountId} and wait for the balance to update.",
+      "Reduce the number of operations in the transaction.",
+      "Remove unused trustlines or offers if the account is close to its reserve limit."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_no_source_account": {
+    "errorCode": "tx_no_source_account",
+    "errorType": "account",
+    "severity": "error",
+    "userMessage": "The source account could not be found on the selected Stellar network.",
+    "troubleshootingSteps": [
+      "Confirm the account exists on {network}.",
+      "Check that the wallet address was copied correctly.",
+      "Fund the account before submitting a transaction."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_insufficient_fee": {
+    "errorCode": "tx_insufficient_fee",
+    "errorType": "funding",
+    "severity": "warning",
+    "userMessage": "The fee offered for this transaction is too low for the network.",
+    "troubleshootingSteps": [
+      "Refresh the recommended fee and build the transaction again.",
+      "Try again when network traffic is lower.",
+      "If submitting many operations, increase the maximum fee."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_bad_auth_extra": {
+    "errorCode": "tx_bad_auth_extra",
+    "errorType": "authorization",
+    "severity": "error",
+    "userMessage": "The transaction includes signatures that are not needed.",
+    "troubleshootingSteps": [
+      "Disconnect and reconnect the wallet.",
+      "Regenerate the transaction instead of reusing a previous signed envelope.",
+      "Ask only the required signer accounts to approve the transaction."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/transactions"
+  },
+  "tx_internal_error": {
+    "errorCode": "tx_internal_error",
+    "errorType": "network",
+    "severity": "error",
+    "userMessage": "The Stellar network returned an internal error while processing this transaction.",
+    "troubleshootingSteps": [
+      "Wait a moment and submit a fresh transaction.",
+      "Check the Stellar network status page.",
+      "Contact support if the problem persists across multiple ledgers."
+    ],
+    "documentationUrl": "https://status.stellar.org/"
+  },
+  "op_bad_auth": {
+    "errorCode": "op_bad_auth",
+    "errorType": "authorization",
+    "severity": "error",
+    "userMessage": "The operation was not authorized by the required signer.",
+    "troubleshootingSteps": [
+      "Confirm the connected wallet controls the operation source account.",
+      "Reconnect the wallet and sign again.",
+      "If this is a multisig account, collect approval from the missing signer."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/operations"
+  },
+  "op_no_source_account": {
+    "errorCode": "op_no_source_account",
+    "errorType": "account",
+    "severity": "error",
+    "userMessage": "The operation source account does not exist on this network.",
+    "troubleshootingSteps": [
+      "Verify the source account address.",
+      "Create or fund the account before trying again.",
+      "Check that the app is connected to the intended network."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/operations"
+  },
+  "op_not_supported": {
+    "errorCode": "op_not_supported",
+    "errorType": "operation",
+    "severity": "error",
+    "userMessage": "This operation is not supported by the selected Stellar network.",
+    "troubleshootingSteps": [
+      "Confirm the network supports this operation type.",
+      "Update the app or wallet if it is using an outdated SDK.",
+      "Contact support with the operation name shown in the activity details."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/operations"
+  },
+  "op_underfunded": {
+    "errorCode": "op_underfunded",
+    "errorType": "funding",
+    "severity": "error",
+    "userMessage": "The account does not have enough spendable balance for this operation.",
+    "troubleshootingSteps": [
+      "Add enough funds to cover the amount, fees, and minimum reserve.",
+      "Lower the amount and try again.",
+      "Check for pending offers, trustlines, or claimable balances that affect the reserve."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/operations"
+  },
+  "op_too_many_subentries": {
+    "errorCode": "op_too_many_subentries",
+    "errorType": "account",
+    "severity": "error",
+    "userMessage": "The account has reached the maximum number of ledger entries for this operation.",
+    "troubleshootingSteps": [
+      "Remove unused trustlines, offers, or data entries.",
+      "Use a different source account with available ledger entry capacity.",
+      "Retry after freeing account reserve capacity."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/operations"
+  },
+  "op_exceeded_work_limit": {
+    "errorCode": "op_exceeded_work_limit",
+    "errorType": "network",
+    "severity": "warning",
+    "userMessage": "The operation required more network work than the ledger allows.",
+    "troubleshootingSteps": [
+      "Try again with fewer operations in the transaction.",
+      "Split the action into smaller transactions.",
+      "Retry when network load is lower."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/operations"
+  },
+  "op_too_many_sponsoring": {
+    "errorCode": "op_too_many_sponsoring",
+    "errorType": "account",
+    "severity": "error",
+    "userMessage": "The account is sponsoring too many ledger entries.",
+    "troubleshootingSteps": [
+      "Stop sponsoring unused entries before retrying.",
+      "Use another sponsor account with available capacity.",
+      "Review active sponsorships in the account details."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/operations"
+  },
+  "op_sponsorship_not_exist": {
+    "errorCode": "op_sponsorship_not_exist",
+    "errorType": "account",
+    "severity": "error",
+    "userMessage": "The operation tried to revoke a sponsorship that does not exist.",
+    "troubleshootingSteps": [
+      "Refresh the account state and try the action again.",
+      "Confirm the ledger entry is still sponsored.",
+      "Avoid reusing an old transaction after sponsorship state changes."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/data/apis/horizon/api-reference/errors/result-codes/operations"
+  },
+  "contract_error": {
+    "errorCode": "contract_error",
+    "errorType": "contract",
+    "severity": "error",
+    "userMessage": "The smart contract rejected this request.",
+    "troubleshootingSteps": [
+      "Check that the amount, recipient, and vault settings match the contract rules.",
+      "Refresh the page to load the latest contract state.",
+      "Contact support with the contract error code if it is shown."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/build/smart-contracts"
+  },
+  "storage_error": {
+    "errorCode": "storage_error",
+    "errorType": "storage",
+    "severity": "error",
+    "userMessage": "The contract storage entry needed for this request is missing, expired, or unavailable.",
+    "troubleshootingSteps": [
+      "Refresh contract data from the ledger.",
+      "Restore archived contract data if the app offers that action.",
+      "Try again after the latest ledger has been indexed."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/build/guides/conventions/persisting-data"
+  },
+  "access_violation": {
+    "errorCode": "access_violation",
+    "errorType": "authorization",
+    "severity": "error",
+    "userMessage": "The connected account is not allowed to perform this contract action.",
+    "troubleshootingSteps": [
+      "Switch to an account with the required role.",
+      "Confirm the wallet address is the expected beneficiary, admin, or signer.",
+      "Ask an administrator to update permissions if access should be granted."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/build/guides/conventions/authorization"
+  },
+  "auth_error": {
+    "errorCode": "auth_error",
+    "errorType": "authorization",
+    "severity": "error",
+    "userMessage": "The contract authorization check failed.",
+    "troubleshootingSteps": [
+      "Reconnect the wallet and approve the latest authorization request.",
+      "Confirm the transaction has not expired.",
+      "Make sure the wallet supports Soroban authorization entries."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/build/guides/conventions/authorization"
+  },
+  "budget_exceeded": {
+    "errorCode": "budget_exceeded",
+    "errorType": "contract",
+    "severity": "warning",
+    "userMessage": "The contract call used more CPU or memory than the network budget allows.",
+    "troubleshootingSteps": [
+      "Retry the action with a smaller batch or amount.",
+      "Wait and try again when network load is lower.",
+      "Contact support if this is a normal action that should fit within budget."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/build/guides/transactions/fees"
+  },
+  "wasm_vm_error": {
+    "errorCode": "wasm_vm_error",
+    "errorType": "contract",
+    "severity": "error",
+    "userMessage": "The contract runtime failed while executing this request.",
+    "troubleshootingSteps": [
+      "Refresh the contract state and retry.",
+      "Confirm you are using the latest version of the app.",
+      "Contact support with the transaction hash and contract ID."
+    ],
+    "documentationUrl": "https://developers.stellar.org/docs/build/smart-contracts"
+  }
+}
