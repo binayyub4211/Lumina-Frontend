@@ -20,6 +20,13 @@
 # production
 /build
 
+# PWA service worker — emitted by @serwist/next at build time. Generating
+# it every build keeps the cache version in lockstep with the app version;
+# the artifact is platform-portable so we do NOT commit it.
+public/sw.js
+public/sw.js.map
+public/workbox-*.js
+
 # misc
 .DS_Store
 *.pem
