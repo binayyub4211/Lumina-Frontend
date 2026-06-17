@@ -12,6 +12,18 @@ import { reportUnknownStellarError } from "@/src/utils/errorTelemetry";
 import { useTxRetryQueue } from "@/src/hooks/useTxRetryQueue";
 import { sendTransaction } from "@/src/lib/sorobanClient";
 import { updateRecord } from "@/src/services/txPersistence";
+import {
+  StroopConverter,
+  STROOP_DECIMALS,
+} from "@/src/utils/balance_scaler";
+import { formatStroop } from "@/src/lib/bigintmath";
+
+export interface BillingData {
+  balance: string;
+  rawBalance: bigint;
+  formattedBalance: string;
+  status: "active" | "inactive" | "suspended";
+}
 
 export function useSorobanBilling(defaultContext: ErrorDecodeContext = {}) {
   const [billingError, setBillingError] = useState<DecodedError | null>(null);
@@ -23,7 +35,13 @@ export function useSorobanBilling(defaultContext: ErrorDecodeContext = {}) {
   const { data: billingData, isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
-      return { balance: "0", status: "active" as const };
+      const rawBalance = StroopConverter.fromBlockchain("0");
+      return {
+        balance: rawBalance.toString(),
+        rawBalance,
+        formattedBalance: formatStroop(rawBalance, STROOP_DECIMALS),
+        status: "active" as const,
+      };
     },
     enabled: !walletQueryKey[0]?.startsWith("wallet-blocked"),
     staleTime: 30_000,
