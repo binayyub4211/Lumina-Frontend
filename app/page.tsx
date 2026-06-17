@@ -64,6 +64,12 @@ export default function Home() {
                 {item}
               </a>
             ))}
+            <a
+              className="rounded-md border border-[#cfc4b1] bg-white px-3 py-2 transition hover:border-[#0f766e] hover:text-[#0f766e]"
+              href="/pending-tx"
+            >
+              Pending
+            </a>
           </nav>
         </header>
 
