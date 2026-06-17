@@ -1,4 +1,4 @@
-import AlertFeed from "../src/components/dashboard/AlertFeed";
+import { AlertFeed } from "../src/components/dashboard/AlertFeed";
 
 export default function Home() {
   return (

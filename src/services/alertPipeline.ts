@@ -1,90 +1,116 @@
-import { DecodedEvent } from "../utils/eventDecoder";
+/**
+ * alertPipeline.ts
+ * Receives decoded Soroban events, deduplicates within a 10-second window,
+ * and emits structured alerts to any registered alert store.
+ */
 
-export type AlertSeverity = "critical" | "warning" | "info";
+import { DecodedEvent, AlertSeverity } from "../utils/eventDecoder";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Alert {
   id: string;
+  contractAddress: string;
+  contractName: string;
+  eventName: string;
+  timestamp: number;
   severity: AlertSeverity;
   title: string;
   description: string;
   actionUrl?: string;
-  eventId: string;
-  timestamp: number;
   dismissed: boolean;
+  fields: Record<string, unknown>;
+  raw: string;
 }
 
-const EVENT_ALERT_MAP: Record<string, {
-  severity: AlertSeverity;
-  title: (data: Record<string, unknown>) => string;
-  description: (data: Record<string, unknown>) => string;
-  actionUrl?: string;
-}> = {
-  bandwidth_capacity: {
-    severity: "warning",
-    title: () => "Node Bandwidth Capacity Alert",
-    description: (data) => `Node bandwidth capacity reached ${data.percentage ?? "?"}%.`,
-    actionUrl: "/dashboard/nodes",
-  },
-  escrow_balance_low: {
-    severity: "critical",
-    title: () => "Escrow Balance Low",
-    description: (data) => `Escrow balance low: ${data.amount ?? "?"} ${data.asset ?? "XLM"} remaining.`,
-    actionUrl: "/dashboard/escrow",
-  },
-  token_streamed: {
-    severity: "info",
-    title: () => "Token Stream Completed",
-    description: (data) => `${data.amount ?? "?"} tokens streamed to ${data.recipient ?? "unknown"}.`,
-  },
-  vault_unlocked: {
-    severity: "info",
-    title: () => "Vault Unlocked",
-    description: (data) => `${data.amount ?? "?"} tokens released to ${data.beneficiary ?? "unknown"}.`,
-  },
-};
+export type AlertListener = (alert: Alert) => void;
 
-const DEDUP_WINDOW_MS = 10_000;
-const dedupCache = new Map<string, number>();
+// ─── Deduplication window ─────────────────────────────────────────────────────
 
-function buildEventId(event: DecodedEvent): string {
-  return `${event.contractAddress}:${event.eventName}:${JSON.stringify(event.data)}`;
-}
+const DEDUP_WINDOW_MS = 10_000; // 10 seconds
 
-function isDuplicate(eventId: string): boolean {
-  const lastSeen = dedupCache.get(eventId);
-  const now = Date.now();
-  if (lastSeen && now - lastSeen < DEDUP_WINDOW_MS) return true;
-  dedupCache.set(eventId, now);
+/**
+ * Tracks the last-seen timestamp for each eventId.
+ * Entries are pruned on each new event so memory doesn't grow unbounded.
+ */
+const seenEvents = new Map<string, number>();
+
+function isDuplicate(eventId: string, timestamp: number): boolean {
+  const lastSeen = seenEvents.get(eventId);
+  if (lastSeen !== undefined && timestamp - lastSeen < DEDUP_WINDOW_MS) {
+    return true;
+  }
+  seenEvents.set(eventId, timestamp);
+  pruneSeenEvents(timestamp);
   return false;
 }
 
-export function processEvent(event: DecodedEvent): Alert | null {
-  const eventId = buildEventId(event);
-  if (isDuplicate(eventId)) return null;
-
-  if (event.isUnknown) {
-    return {
-      id: crypto.randomUUID(),
-      severity: "warning",
-      title: "Unknown Event",
-      description: `Unknown event received: ${event.rawTopics[0] ?? event.rawData}`,
-      eventId,
-      timestamp: Date.now(),
-      dismissed: false,
-    };
+/** Remove entries older than the dedup window to keep memory bounded. */
+function pruneSeenEvents(now: number): void {
+  for (const [id, ts] of seenEvents) {
+    if (now - ts > DEDUP_WINDOW_MS) {
+      seenEvents.delete(id);
+    }
   }
+}
 
-  const template = EVENT_ALERT_MAP[event.eventName];
-  if (!template) return null;
+// ─── Pipeline ─────────────────────────────────────────────────────────────────
 
-  return {
-    id: crypto.randomUUID(),
-    severity: template.severity,
-    title: template.title(event.data),
-    description: template.description(event.data),
-    actionUrl: template.actionUrl,
-    eventId,
-    timestamp: Date.now(),
-    dismissed: false,
+const listeners: Set<AlertListener> = new Set();
+
+/**
+ * Register a callback that fires whenever a new, non-duplicate alert is emitted.
+ * Returns an unsubscribe function.
+ */
+export function subscribeToAlerts(listener: AlertListener): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+/** Convert a DecodedEvent to an Alert and fan-out to all listeners. */
+function emitAlert(event: DecodedEvent): void {
+  const alert: Alert = {
+    id:              event.eventId,
+    contractAddress: event.contractAddress,
+    contractName:    event.contractName,
+    eventName:       event.eventName,
+    timestamp:       event.timestamp,
+    severity:        event.severity,
+    title:           event.title,
+    description:     event.description,
+    actionUrl:       event.actionUrl,
+    dismissed:       false,
+    fields:          event.fields,
+    raw:             event.raw,
   };
+
+  listeners.forEach((fn) => {
+    try {
+      fn(alert);
+    } catch (err) {
+      console.error("[alertPipeline] listener error:", err);
+    }
+  });
+}
+
+/**
+ * Feed a single decoded event into the pipeline.
+ * Silently drops duplicates within the 10-second window.
+ */
+export function processEvent(event: DecodedEvent): void {
+  if (isDuplicate(event.eventId, event.timestamp)) return;
+  emitAlert(event);
+}
+
+/**
+ * Feed a batch of decoded events into the pipeline.
+ * Each is individually dedup-checked.
+ */
+export function processBatch(events: DecodedEvent[]): void {
+  events.forEach(processEvent);
+}
+
+/** Reset dedup state — useful in tests or on session restart. */
+export function resetPipeline(): void {
+  seenEvents.clear();
 }
