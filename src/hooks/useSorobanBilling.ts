@@ -9,6 +9,9 @@ import {
   resolveError,
 } from "@/src/utils/errorDecoder";
 import { reportUnknownStellarError } from "@/src/utils/errorTelemetry";
+import { useTxRetryQueue } from "@/src/hooks/useTxRetryQueue";
+import { sendTransaction } from "@/src/lib/sorobanClient";
+import { updateRecord } from "@/src/services/txPersistence";
 
 export function useSorobanBilling(defaultContext: ErrorDecodeContext = {}) {
   const [billingError, setBillingError] = useState<DecodedError | null>(null);
@@ -25,6 +28,49 @@ export function useSorobanBilling(defaultContext: ErrorDecodeContext = {}) {
     enabled: !walletQueryKey[0]?.startsWith("wallet-blocked"),
     staleTime: 30_000,
   });
+
+  const {
+    pendingTransactions,
+    syncing,
+    enqueue,
+    retryTransaction,
+    cancelTransaction,
+    clearOldCompleted,
+    refresh: refreshQueue,
+  } = useTxRetryQueue();
+
+  const submitWithQueue = useCallback(
+    async (params: {
+      contractId: string;
+      method: string;
+      args: unknown[];
+      txXdr: string;
+    }) => {
+      const record = await enqueue({
+        contractId: params.contractId,
+        method: params.method,
+        args: params.args,
+      });
+
+      const result = await sendTransaction(params.txXdr);
+
+      if (result.hash) {
+        updateRecord(record.idempotencyKey, {
+          txHash: result.hash,
+          status:
+            result.status === "SUCCESS" ||
+            result.status === "PENDING"
+              ? "pending"
+              : "failed",
+        });
+      } else {
+        updateRecord(record.idempotencyKey, { status: "failed" });
+      }
+
+      return result;
+    },
+    [enqueue],
+  );
 
   const decodeBillingError = useCallback(
     (error: unknown, context: ErrorDecodeContext = {}) => {
@@ -46,5 +92,12 @@ export function useSorobanBilling(defaultContext: ErrorDecodeContext = {}) {
     billingError,
     clearBillingError: () => setBillingError(null),
     decodeBillingError,
+    pendingTransactions,
+    syncing,
+    submitWithQueue,
+    retryTransaction,
+    cancelTransaction,
+    clearOldCompleted,
+    refreshQueue,
   };
 }
