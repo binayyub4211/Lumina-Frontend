@@ -11,10 +11,15 @@
     "typecheck": "tsc --noEmit",
     "icons": "node scripts/generate-pwa-icons.mjs",
     "prebuild": "node scripts/generate-pwa-icons.mjs",
-    "test:unit": "tsx src/lib/__tests__/offlineQueue.test.ts"
+    "test:unit": "tsx src/lib/__tests__/offlineQueue.test.ts",
+    "test:optimistic": "tsx src/lib/__tests__/OptimisticTransactionManager.test.ts",
+    "test:cache": "tsx src/services/__tests__/localCache.test.ts",
+    "test:queue": "tsx src/lib/__tests__/txQueue.test.ts",
+    "test:all": "tsx src/lib/__tests__/offlineQueue.test.ts && tsx src/lib/__tests__/OptimisticTransactionManager.test.ts && tsx src/services/__tests__/localCache.test.ts && tsx src/lib/__tests__/txQueue.test.ts"
   },
   "dependencies": {
     "@serwist/next": "^9.5.11",
+    "@stellar/stellar-sdk": "^13.0.0",
     "@tanstack/react-query": "^5.101.0",
     "idb": "^8.0.3",
     "next": "16.1.6",
