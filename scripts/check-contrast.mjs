@@ -4,9 +4,9 @@ const pairs = [
   { fg: "#000000", bg: "#ffffff", name: "text on bg (solar)", required: 10 },
   { fg: "#1a1a1a", bg: "#ffffff", name: "text-secondary on bg (solar)", required: 10 },
   { fg: "#2a2a2a", bg: "#ffffff", name: "text-tertiary on bg (solar)", required: 10 },
-  { fg: "#0022cc", bg: "#ffffff", name: "primary on bg (solar)", required: 10 },
+  { fg: "#0020b3", bg: "#ffffff", name: "primary on bg (solar)", required: 10 },
   { fg: "#001999", bg: "#ffffff", name: "primary-hover on bg (solar)", required: 10 },
-  { fg: "#ffffff", bg: "#0022cc", name: "primary-text on primary (solar)", required: 10 },
+  { fg: "#ffffff", bg: "#0020b3", name: "primary-text on primary (solar)", required: 10 },
   { fg: "#004d00", bg: "#ffffff", name: "secondary on bg (solar)", required: 10 },
   { fg: "#8b0000", bg: "#ffffff", name: "danger on bg (solar)", required: 10 },
   { fg: "#8b0000", bg: "#ffffff", name: "danger-text on bg (solar)", required: 10 },
@@ -62,7 +62,7 @@ for (const { fg, bg, name, required } of pairs) {
   let status;
   if (required === 0) {
     status = "INFO";
-  } else if (metdsRequired) {
+  } else if (meetsRequired) {
     status = "PASS";
   } else {
     status = "FAIL";
