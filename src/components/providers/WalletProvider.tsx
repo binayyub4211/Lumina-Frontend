@@ -32,6 +32,8 @@ declare global {
     freighter?: {
       getUserInfo: () => Promise<FreighterUserInfo>;
       isConnected: () => Promise<{ isConnected: boolean }>;
+      signTransaction?: (xdr: string) => Promise<{ signedTxXdr: string }>;
+      signAuthEntry?: (authEntry: string) => Promise<{ signedAuthEntry: string }>;
     };
   }
 }
