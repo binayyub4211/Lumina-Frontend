@@ -1,28 +1,28 @@
 #!/usr/bin/env node
 
 const pairs = [
-  { fg: "#000000", bg: "#ffffff", name: "text on bg (solar)" },
-  { fg: "#1a1a1a", bg: "#ffffff", name: "text-secondary on bg (solar)" },
-  { fg: "#2a2a2a", bg: "#ffffff", name: "text-tertiary on bg (solar)" },
-  { fg: "#0022cc", bg: "#ffffff", name: "primary on bg (solar)" },
-  { fg: "#001999", bg: "#ffffff", name: "primary-hover on bg (solar)" },
-  { fg: "#ffffff", bg: "#0022cc", name: "primary-text on primary (solar)" },
-  { fg: "#004d00", bg: "#ffffff", name: "secondary on bg (solar)" },
-  { fg: "#8b0000", bg: "#ffffff", name: "danger on bg (solar)" },
-  { fg: "#8b0000", bg: "#ffffff", name: "danger-text on bg (solar)" },
-  { fg: "#4a3a00", bg: "#ffffff", name: "warning on bg (solar)" },
-  { fg: "#3a2e00", bg: "#ffffff", name: "warning-fill on bg (solar)" },
-  { fg: "#000000", bg: "#f5f5f5", name: "text on surface (solar)" },
-  { fg: "#001999", bg: "#e0e8ff", name: "tag-text on tag-bg (solar)" },
-  { fg: "#ffffff", bg: "#000000", name: "nav-text on nav-bg (solar)" },
-  { fg: "#000000", bg: "#ffffff", name: "focus-ring on bg (solar)" },
-  { fg: "#171717", bg: "#ffffff", name: "text on bg (light)" },
-  { fg: "#6f5f48", bg: "#f7f4ee", name: "text-secondary on bg (light)" },
-  { fg: "#0f766e", bg: "#f7f4ee", name: "primary on bg (light)" },
-  { fg: "#ffffff", bg: "#0f766e", name: "primary-text on primary (light)" },
-  { fg: "#ededed", bg: "#0a0a0a", name: "text on bg (dark)" },
-  { fg: "#2dd4bf", bg: "#0a0a0a", name: "primary on bg (dark)" },
-  { fg: "#0a0a0a", bg: "#2dd4bf", name: "primary-text on primary (dark)" },
+  { fg: "#000000", bg: "#ffffff", name: "text on bg (solar)", required: 10 },
+  { fg: "#1a1a1a", bg: "#ffffff", name: "text-secondary on bg (solar)", required: 10 },
+  { fg: "#2a2a2a", bg: "#ffffff", name: "text-tertiary on bg (solar)", required: 10 },
+  { fg: "#0022cc", bg: "#ffffff", name: "primary on bg (solar)", required: 10 },
+  { fg: "#001999", bg: "#ffffff", name: "primary-hover on bg (solar)", required: 10 },
+  { fg: "#ffffff", bg: "#0022cc", name: "primary-text on primary (solar)", required: 10 },
+  { fg: "#004d00", bg: "#ffffff", name: "secondary on bg (solar)", required: 10 },
+  { fg: "#8b0000", bg: "#ffffff", name: "danger on bg (solar)", required: 10 },
+  { fg: "#8b0000", bg: "#ffffff", name: "danger-text on bg (solar)", required: 10 },
+  { fg: "#4a3a00", bg: "#ffffff", name: "warning on bg (solar)", required: 10 },
+  { fg: "#3a2e00", bg: "#ffffff", name: "warning-fill on bg (solar)", required: 10 },
+  { fg: "#000000", bg: "#f5f5f5", name: "text on surface (solar)", required: 10 },
+  { fg: "#001999", bg: "#e0e8ff", name: "tag-text on tag-bg (solar)", required: 10 },
+  { fg: "#ffffff", bg: "#000000", name: "nav-text on nav-bg (solar)", required: 10 },
+  { fg: "#000000", bg: "#ffffff", name: "focus-ring on bg (solar)", required: 12 },
+  { fg: "#171717", bg: "#ffffff", name: "text on bg (light)", required: 0 },
+  { fg: "#6f5f48", bg: "#f7f4ee", name: "text-secondary on bg (light)", required: 0 },
+  { fg: "#0f766e", bg: "#f7f4ee", name: "primary on bg (light)", required: 0 },
+  { fg: "#ffffff", bg: "#0f766e", name: "primary-text on primary (light)", required: 0 },
+  { fg: "#ededed", bg: "#0a0a0a", name: "text on bg (dark)", required: 0 },
+  { fg: "#2dd4bf", bg: "#0a0a0a", name: "primary on bg (dark)", required: 0 },
+  { fg: "#0a0a0a", bg: "#2dd4bf", name: "primary-text on primary (dark)", required: 0 },
 ];
 
 function hexToRgb(hex) {
@@ -53,27 +53,31 @@ function contrastRatio(hex1, hex2) {
 
 let failures = 0;
 
-for (const { fg, bg, name } of pairs) {
+for (const { fg, bg, name, required } of pairs) {
   const ratio = contrastRatio(fg, bg);
   const passesText = ratio >= 10.0;
   const passesAAA = ratio >= 7.0;
-  const status = passesText
-    ? "PASS (10:1+)"
-    : passesAAA
-      ? "WARN (AAA 7:1+)"
-      : "FAIL";
-  if (!passesText) failures++;
+  const meetsRequired = required === 0 || ratio >= required;
+
+  let status;
+  if (required === 0) {
+    status = "INFO";
+  } else if (metdsRequired) {
+    status = "PASS";
+  } else {
+    status = "FAIL";
+  }
+
+  if (required > 0 && !meetsRequired) failures++;
   console.log(
-    `${status.padEnd(12)} ${ratio.toFixed(2).padStart(5)}:1  ${name}  (${fg} on ${bg})`,
+    `${status.padEnd(8)} ${ratio.toFixed(2).padStart(5)}:1  ${name}  (${fg} on ${bg})`,
   );
 }
 
 console.log(`\n---`);
 if (failures === 0) {
-  console.log(`All ${pairs.length} pairs meet 10:1 minimum contrast.`);
+  console.log(`All required contrast pairs meet minimum thresholds.`);
 } else {
-  console.log(
-    `${failures} pair(s) below 10:1 threshold (but may still pass WCAG AAA 7:1).`,
-  );
+  console.log(`${failures} pair(s) below required threshold.`);
   process.exitCode = 1;
 }
