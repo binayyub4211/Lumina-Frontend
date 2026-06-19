@@ -6,6 +6,7 @@ import { createQueryClient } from "@/src/lib/queryClient";
 import { installOfflineSync } from "@/src/lib/offlineSync";
 import { WalletProvider } from "@/src/components/providers/WalletProvider";
 import { WalletStatusBar } from "@/src/components/shared/WalletStatusBar";
+import { ThemeProvider } from "@/src/components/providers/ThemeProvider";
 
 function OfflineSyncInstigator() {
   useEffect(() => installOfflineSync(), []);
@@ -18,10 +19,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <OfflineSyncInstigator />
-      <WalletProvider>
-        {children}
-        <WalletStatusBar />
-      </WalletProvider>
+      <ThemeProvider>
+        <WalletProvider>
+          {children}
+          <WalletStatusBar />
+        </WalletProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

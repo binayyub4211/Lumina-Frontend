@@ -1,0 +1,52 @@
+.solar {
+  --color-bg: #ffffff;
+  --color-text: #000000;
+  --color-text-secondary: #1a1a1a;
+  --color-text-tertiary: #2a2a2a;
+  --color-primary: #0022cc;
+  --color-primary-hover: #001999;
+  --color-primary-text: #ffffff;
+  --color-secondary: #004d00;
+  --color-secondary-hover: #003300;
+  --color-secondary-text: #ffffff;
+  --color-danger: #8b0000;
+  --color-danger-hover: #660000;
+  --color-danger-text: #8b0000;
+  --color-warning: #4a3a00;
+  --color-warning-hover: #3a2e00;
+  --color-warning-text: #000000;
+  --color-warning-fill: #3a2e00;
+  --color-surface: #f5f5f5;
+  --color-surface-hover: #e0e0e0;
+  --color-border: #666666;
+  --color-border-light: #999999;
+  --color-focus: #000000;
+  --color-overlay: rgba(0, 0, 0, 0.85);
+  --color-success: #004d00;
+  --color-success-bg: #e6f0e6;
+  --color-danger-bg: #f0e6e6;
+  --color-warning-bg: #f0ede6;
+  --color-info-bg: #e6eaf0;
+  --color-progress-bg: #cccccc;
+  --color-progress-fill: #0022cc;
+  --color-nav-bg: #000000;
+  --color-nav-text: #ffffff;
+  --color-nav-border: rgba(255, 255, 255, 0.2);
+  --color-nav-surface: rgba(255, 255, 255, 0.1);
+  --color-table-stripe: #f0f0f0;
+  --color-table-header-bg: #e0e0e0;
+  --color-table-divider: #cccccc;
+  --color-tag-bg: #e0e8ff;
+  --color-tag-text: #001999;
+  --focus-ring-width: 3px;
+  --focus-ring-style: solid;
+  --focus-ring-color: #000000;
+  --font-weight-normal: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+.solar *:focus-visible {
+  outline: var(--focus-ring-width) var(--focus-ring-style) var(--focus-ring-color);
+  outline-offset: 2px;
+}
