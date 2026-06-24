@@ -5,7 +5,6 @@
 import { readFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import sharp from "sharp";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
@@ -28,6 +27,16 @@ const targets = [
     size: 512,
   },
 ];
+
+const allOutputsExist = targets.every(({ name }) => existsSync(resolve(iconDir, name)));
+const sharpEntrypoint = resolve(root, "node_modules", "sharp", "index.js");
+
+if (!existsSync(sharpEntrypoint) && allOutputsExist) {
+  console.log("PWA icons already exist; skipping regeneration because sharp is unavailable.");
+  process.exit(0);
+}
+
+const { default: sharp } = await import("sharp");
 
 await Promise.all(
   targets.map(async ({ source, name, size }) => {

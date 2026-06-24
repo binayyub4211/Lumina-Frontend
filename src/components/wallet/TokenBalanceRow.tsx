@@ -55,13 +55,15 @@ export function TokenBalanceRow({
   locale,
   loading = false,
 }: TokenBalanceRowProps) {
+  const hasBalance = stroopBalance != null;
+  const balance = useFormattedBalance(stroopBalance ?? 0n, decimals, locale);
+
   if (loading) return <LoadingSkeleton />;
 
-  if (stroopBalance == null) {
+  if (!hasBalance) {
     return <ErrorRow symbol={symbol} message="Balance unavailable" />;
   }
 
-  const balance = useFormattedBalance(stroopBalance, decimals, locale);
 
   let usdDisplay: string | null = null;
   if (usdValue != null && balance.raw !== 0n) {
