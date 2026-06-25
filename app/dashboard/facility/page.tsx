@@ -1,7 +1,5 @@
-'use client'
-
-import { FacilityDashboard } from '@/src/components/dashboard/FacilityDashboard'
+import { FacilityDashboardClient } from './FacilityDashboardClient'
 
 export default function FacilityDashboardPage() {
-  return <FacilityDashboard />
+  return <FacilityDashboardClient />
 }

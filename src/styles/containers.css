@@ -1,0 +1,53 @@
+.dashboard-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  overflow-x: auto;
+}
+
+.dashboard-grid-cell {
+  container-type: inline-size;
+  min-width: 280px;
+}
+
+
+.card-content {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+  min-width: 280px;
+  overflow-x: auto;
+}
+
+.card-content > * {
+  min-width: 0;
+  width: 100%;
+}
+
+.dashboard-card {
+  min-width: 0;
+  width: 100%;
+}
+
+.dashboard-canvas-container {
+  min-height: 220px;
+  width: 100%;
+}
+
+@container (max-width: 399px) {
+  .card-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@container (min-width: 400px) and (max-width: 799px) {
+  .card-content {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@container (min-width: 800px) {
+  .card-content {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}

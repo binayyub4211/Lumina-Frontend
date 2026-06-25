@@ -9,11 +9,17 @@
  * - Ampersand, angle-bracket, quote, and apostrophe characters are encoded in
  *   non-allowlisted contexts.
  * - Unicode normalization attacks (homoglyphs) are neutralised via DOMPurify's
- *   built-in Unicode-aware parser.
+ *   built-in Unicode-aware parser in the browser and conservative escaping on the server.
  * - Target: < 5 ms for strings up to 10 KB.
  */
 
-import DOMPurify from 'isomorphic-dompurify';
+type DOMPurifyApi = typeof import('isomorphic-dompurify').default;
+
+const browserDOMPurify: DOMPurifyApi | null =
+  typeof window === 'undefined'
+    ? null
+    : (require('isomorphic-dompurify') as { default?: DOMPurifyApi } & DOMPurifyApi).default ??
+      (require('isomorphic-dompurify') as DOMPurifyApi);
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -25,33 +31,47 @@ const ALLOWED_TAGS = ['b', 'i', 'a'];
 /** Attributes that may appear on allowed tags. */
 const ALLOWED_ATTR = ['href', 'rel'];
 
-/**
- * Ensure anchor tags always carry `rel="nofollow noopener noreferrer"`
- * to prevent tab-napping and link-juice leakage.
- *
- * Uses nodeName string comparison instead of instanceof HTMLAnchorElement
- * to remain compatible with SSR environments (Node.js lacks browser DOM
- * constructors).
- */
-DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-  if (
-    (node as Element).nodeName === 'A' ||
-    (typeof HTMLAnchorElement !== 'undefined' &&
-      node instanceof HTMLAnchorElement)
-  ) {
-    const rel = (node as Element).getAttribute('rel') ?? '';
-    const parts = new Set(
-      rel
-        .split(/\s+/)
-        .map((s) => s.trim().toLowerCase())
-        .filter(Boolean),
-    );
-    parts.add('nofollow');
-    parts.add('noopener');
-    parts.add('noreferrer');
-    (node as Element).setAttribute('rel', [...parts].join(' '));
-  }
-});
+let hookInstalled = false;
+
+function installAnchorRelHook(): void {
+  if (hookInstalled || !browserDOMPurify || typeof window === 'undefined') return;
+
+  browserDOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    const element = node as Element;
+    if (element.nodeName === 'A' || element instanceof HTMLAnchorElement) {
+      const rel = element.getAttribute('rel') ?? '';
+      const parts = new Set(
+        rel
+          .split(/\s+/)
+          .map((s: string) => s.trim().toLowerCase())
+          .filter(Boolean),
+      );
+      parts.add('nofollow');
+      parts.add('noopener');
+      parts.add('noreferrer');
+      element.setAttribute('rel', [...parts].join(' '));
+    }
+  });
+
+  hookInstalled = true;
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function sanitizeServerSide(normalized: string): string {
+  return escapeHtml(normalized)
+    .replace(/&lt;(\/?)b&gt;/gi, '<$1b>')
+    .replace(/&lt;(\/?)i&gt;/gi, '<$1i>')
+    .replace(/&lt;a\s+href=&quot;(https?:\/\/[^&]+)&quot;&gt;/gi, '<a href="$1" rel="nofollow noopener noreferrer">')
+    .replace(/&lt;\/a&gt;/gi, '</a>');
+}
 
 // ---------------------------------------------------------------------------
 // Danger-pattern detector (monitoring / analytics)
@@ -69,46 +89,16 @@ interface DangerDetection {
  * If any of these appear in sanitized output, something went wrong.
  */
 const DANGER_PATTERNS: { label: string; re: RegExp }[] = [
-  {
-    label: 'script-tag',
-    re: /<script[\s/>]/i,
-  },
-  {
-    label: 'event-handler',
-    re: /\bon\w+\s*=\s*["']?/i,
-  },
-  {
-    label: 'javascript-uri',
-    re: /\bj(?:ava)?script\s*:/i,
-  },
-  {
-    label: 'data-uri',
-    re: /data\s*:\s*[^,]*[,;]/i,
-  },
-  {
-    label: 'vbscript-uri',
-    re: /\bvbscript\s*:/i,
-  },
-  {
-    label: 'expression-css',
-    re: /\bexpression\s*\(/i,
-  },
-  {
-    label: 'eval-invocation',
-    re: /\beval\s*\(/i,
-  },
-  {
-    label: 'iframe-tag',
-    re: /<iframe[\s/>]/i,
-  },
-  {
-    label: 'object-tag',
-    re: /<object[\s/>]/i,
-  },
-  {
-    label: 'embed-tag',
-    re: /<embed[\s/>]/i,
-  },
+  { label: 'script-tag', re: /<script[\s/>]/i },
+  { label: 'event-handler', re: /\bon\w+\s*=\s*["']?/i },
+  { label: 'javascript-uri', re: /\bj(?:ava)?script\s*:/i },
+  { label: 'data-uri', re: /data\s*:\s*[^,]*[,;]/i },
+  { label: 'vbscript-uri', re: /\bvbscript\s*:/i },
+  { label: 'expression-css', re: /\bexpression\s*\(/i },
+  { label: 'eval-invocation', re: /\beval\s*\(/i },
+  { label: 'iframe-tag', re: /<iframe[\s/>]/i },
+  { label: 'object-tag', re: /<object[\s/>]/i },
+  { label: 'embed-tag', re: /<embed[\s/>]/i },
 ];
 
 // ---------------------------------------------------------------------------
@@ -128,7 +118,17 @@ export function sanitizeNodeString(dirty: string): string {
   // Normalize Unicode before sanitization to defeat homoglyph attacks.
   const normalized = dirty.normalize('NFC');
 
-  return DOMPurify.sanitize(normalized, {
+  if (typeof window === 'undefined') {
+    return sanitizeServerSide(normalized);
+  }
+
+  if (!browserDOMPurify) {
+    return sanitizeServerSide(normalized);
+  }
+
+  installAnchorRelHook();
+
+  return browserDOMPurify.sanitize(normalized, {
     ALLOWED_TAGS,
     ALLOWED_ATTR,
     ALLOW_DATA_ATTR: false,

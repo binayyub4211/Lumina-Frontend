@@ -194,7 +194,7 @@ export function FacilityDashboard() {
 
   return (
     <main className="min-h-screen bg-[#f7f4ee] text-[#171512]">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-5 sm:px-8 lg:px-10">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col px-5 py-5 sm:px-8 lg:px-10">
         <header className="flex flex-col gap-4 border-b border-[#d8d0c1] pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#6f5f48]">
@@ -230,8 +230,8 @@ export function FacilityDashboard() {
           </div>
         </header>
 
-        <div className="grid grid-cols-1 gap-6 py-6 lg:grid-cols-3">
-          <section className="lg:col-span-2">
+        <div className="dashboard-grid py-6">
+          <section className="dashboard-grid-cell">
             <h2 className="sr-only">Node List</h2>
             {nodesSkeleton.showSkeleton ? (
               <>
@@ -265,7 +265,7 @@ export function FacilityDashboard() {
             )}
           </section>
 
-          <section className="lg:col-span-1">
+          <section className="dashboard-grid-cell">
             <h2 className="sr-only">Alerts</h2>
             {alertsSkeleton.showSkeleton ? (
               <>
@@ -285,54 +285,49 @@ export function FacilityDashboard() {
         </div>
 
         {solarNodes.length > 0 && (
-          <section className="mb-6">
-            <h2 className="text-lg font-semibold text-[#171512] mb-4">
-              Solar Battery Forecasts
-            </h2>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <section className="dashboard-grid-cell mb-6">
+            <h2 className="text-lg font-semibold text-[#171512] mb-4">Solar Battery Forecasts</h2>
+            <div className="card-content">
               {solarNodes.slice(0, 3).map((node) => (
-                <SolarBatteryGauge
-                  key={node.id}
-                  facilityId={String(node.metadata?.location ?? "us-east")}
-                  nodeLabel={node.label ?? node.id}
-                />
+                <div className="dashboard-card" key={node.id}>
+                  <SolarBatteryGauge
+                    facilityId={String(node.metadata?.location ?? 'us-east')}
+                    nodeLabel={node.label ?? node.id}
+                  />
+                </div>
               ))}
             </div>
           </section>
         )}
 
-        <section>
-          <h2 className="text-lg font-semibold text-[#171512] mb-4">
-            Network Metrics
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {["Latency", "Throughput", "Packet Loss", "Uptime"].map(
-              (metric) => (
-                <div key={metric}>
-                  {metricsSkeleton.showSkeleton ? (
-                    <SkeletonCard variant="metric" />
-                  ) : (
-                    <div className="skeleton-fade-active rounded-lg border border-[#d8d0c1] bg-white p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-[#6f5f48]">
-                        {metric}
-                      </p>
-                      <p className="mt-2 text-2xl font-semibold text-[#171512]">
-                        {metric === "Latency" && "24ms"}
-                        {metric === "Throughput" && "1,247/s"}
-                        {metric === "Packet Loss" && "0.02%"}
-                        {metric === "Uptime" && "99.97%"}
-                      </p>
-                      <p className="mt-1 text-xs text-[#6f5f48]">
-                        {metric === "Latency" && "12ms avg"}
-                        {metric === "Throughput" && "Peak: 2,100/s"}
-                        {metric === "Packet Loss" && "Last 24h"}
-                        {metric === "Uptime" && "30d rolling"}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ),
-            )}
+        <section className="dashboard-grid-cell">
+          <h2 className="text-lg font-semibold text-[#171512] mb-4">Network Metrics</h2>
+          <div className="card-content">
+            {['Latency', 'Throughput', 'Packet Loss', 'Uptime'].map((metric) => (
+              <div key={metric} className="dashboard-grid-cell">
+                {metricsSkeleton.showSkeleton ? (
+                  <SkeletonCard variant="metric" />
+                ) : (
+                  <div className="skeleton-fade-active rounded-lg border border-[#d8d0c1] bg-white p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[#6f5f48]">
+                      {metric}
+                    </p>
+                    <p className="mt-2 text-2xl font-semibold text-[#171512]">
+                      {metric === 'Latency' && '24ms'}
+                      {metric === 'Throughput' && '1,247/s'}
+                      {metric === 'Packet Loss' && '0.02%'}
+                      {metric === 'Uptime' && '99.97%'}
+                    </p>
+                    <p className="mt-1 text-xs text-[#6f5f48]">
+                      {metric === 'Latency' && '12ms avg'}
+                      {metric === 'Throughput' && 'Peak: 2,100/s'}
+                      {metric === 'Packet Loss' && 'Last 24h'}
+                      {metric === 'Uptime' && '30d rolling'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
           <div className="mt-6">
