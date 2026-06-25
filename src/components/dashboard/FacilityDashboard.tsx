@@ -56,6 +56,7 @@ const MOCK_NODES: NodePosition[] = Array.from({ length: 12 }, (_, i) => ({
     hardwareModel: ["X1", "P2", "Z3", "Q4"][i % 4],
     ipAddress: `10.0.${Math.floor(i / 4)}.${(i % 4) * 64 + 1}`,
     uptime: `${Math.floor(Math.random() * 365)}d ${Math.floor(Math.random() * 24)}h`,
+    powerSource: (i % 4 === 0 ? 'grid' : i % 3 === 0 ? 'battery' : 'solar'),
   },
 }));
 
@@ -130,27 +131,12 @@ function AlertSectionSkeleton() {
 }
 
 export function FacilityDashboard() {
-  const [nodesData, setNodesData] = useState<NodePosition[] | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "tree">(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("dashboard-view-mode");
-      return (saved === "tree" ? "tree" : "list") as "list" | "tree";
-    }
-    return "list";
-  });
-  const setNodesReady = useDashboardStore((s) => s.setNodesReady);
-  const setAlertsReady = useDashboardStore((s) => s.setAlertsReady);
-  const setMetricsReady = useDashboardStore((s) => s.setMetricsReady);
-
-  // Persist view mode to localStorage
-  useEffect(() => {
-    localStorage.setItem("dashboard-view-mode", viewMode);
-  }, [viewMode]);
-
-  // Convert nodes to hierarchical data for tree view
-  const hierarchicalData = useHierarchicalData(
-    nodesData ? convertToFlatNodes(nodesData) : [],
-  );
+  const { events: activityEvents } = useActivityLogSubscription(10_000)
+  const [nodesData, setNodesData] = useState<NodePosition[] | null>(null)
+  const setNodesReady = useDashboardStore((s) => s.setNodesReady)
+  const setAlertsReady = useDashboardStore((s) => s.setAlertsReady)
+  const setMetricsReady = useDashboardStore((s) => s.setMetricsReady)
+  const solarNodes = (nodesData ?? []).filter((node) => getNodePowerSource(node) !== 'grid')
 
   const nodesSkeleton = useSkeletonTiming(
     () => useDashboardStore.getState().nodesReady,
@@ -275,6 +261,21 @@ export function FacilityDashboard() {
           </section>
         </div>
 
+        {solarNodes.length > 0 && (
+          <section className="mb-6">
+            <h2 className="text-lg font-semibold text-[#171512] mb-4">Solar Battery Forecasts</h2>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {solarNodes.slice(0, 3).map((node) => (
+                <SolarBatteryGauge
+                  key={node.id}
+                  facilityId={String(node.metadata?.location ?? 'us-east')}
+                  nodeLabel={node.label ?? node.id}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
         <section>
           <h2 className="text-lg font-semibold text-[#171512] mb-4">
             Network Metrics
@@ -307,6 +308,10 @@ export function FacilityDashboard() {
                 </div>
               ),
             )}
+          </div>
+
+          <div className="mt-6">
+            <ActivityLogList events={activityEvents} />
           </div>
 
           <div className="mt-6">
