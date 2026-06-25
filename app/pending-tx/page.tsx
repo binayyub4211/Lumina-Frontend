@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { PendingTxPanel } from "@/src/components/wallet/PendingTxPanel";
 import { useTxRetryQueue } from "@/src/hooks/useTxRetryQueue";
 
@@ -25,12 +26,12 @@ export default function PendingTxPage() {
               Transaction Recovery
             </h1>
           </div>
-          <a
+          <Link
             href="/"
             className="rounded-md border border-[#cfc4b1] bg-white px-4 py-2 text-sm font-medium text-[#3e3830] transition hover:border-[#0f766e] hover:text-[#0f766e]"
           >
             Back to Dashboard
-          </a>
+          </Link>
         </header>
 
         <div className="mt-8">
