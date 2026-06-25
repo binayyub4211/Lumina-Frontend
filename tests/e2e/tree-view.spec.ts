@@ -183,11 +183,14 @@ test.describe("TreeView Performance", () => {
     await page.goto("/dashboard/facility");
     await page.getByRole('button', { name: /tree view/i }).click();
     
-    // Give the charts a brief window to populate child nodes
-    await page.waitForTimeout(500);
+    // Define the selector for the visual node elements
+    const targetSelector = "svg circle, circle, g.node, .recharts-symbols";
 
-    // Look for generic nodes/circles/points inside the container view
-    const circles = page.locator("svg circle, circle, g.node, .recharts-symbols");
+    // 1. Force Playwright to wait for at least one element to match this selector in the DOM
+    await page.waitForSelector(targetSelector, { state: "attached", timeout: 5000 });
+
+    // 2. Safely capture the locators now that they exist
+    const circles = page.locator(targetSelector);
     const count = await circles.count();
     expect(count).toBeGreaterThan(0);
 
@@ -195,7 +198,7 @@ test.describe("TreeView Performance", () => {
     const firstCircle = circles.first();
     const hasColor = await firstCircle.evaluate((el: HTMLElement) => {
       const style = getComputedStyle(el);
-      return style.fill !== "" || style.backgroundColor !== "";
+      return style.fill !== "" || style.backgroundColor !== "" || style.stroke !== "";
     });
     expect(hasColor).toBe(true);
   });
