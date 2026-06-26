@@ -19,12 +19,14 @@
     "test:shared-state": "tsx src/services/__tests__/sharedStateSync.test.ts",
     "test:e2e": "playwright test",
     "test:idb": "tsx src/lib/__tests__/idbClient.test.ts",
-    "test:all": "tsx src/lib/__tests__/offlineQueue.test.ts && tsx src/lib/__tests__/OptimisticTransactionManager.test.ts && tsx src/services/__tests__/localCache.test.ts && tsx src/lib/__tests__/txQueue.test.ts && tsx src/lib/__tests__/slidingWindow.test.ts && tsx src/lib/__tests__/idbClient.test.ts && tsx src/services/__tests__/sharedStateSync.test.ts"
+    "test:workspace": "tsx src/store/__tests__/workspaceStore.test.ts",
+    "test:all": "tsx src/lib/__tests__/offlineQueue.test.ts && tsx src/lib/__tests__/OptimisticTransactionManager.test.ts && tsx src/services/__tests__/localCache.test.ts && tsx src/lib/__tests__/txQueue.test.ts && tsx src/lib/__tests__/slidingWindow.test.ts && tsx src/lib/__tests__/idbClient.test.ts && tsx src/services/__tests__/sharedStateSync.test.ts && tsx src/store/__tests__/workspaceStore.test.ts"
   },
   "dependencies": {
     "@serwist/next": "^9.5.11",
     "@stellar/stellar-sdk": "^13.0.0",
     "@tanstack/react-query": "^5.101.0",
+    "axios": "^1.18.1",
     "d3": "^7.9.0",
     "idb": "^8.0.3",
     "isomorphic-dompurify": "^3.18.0",
