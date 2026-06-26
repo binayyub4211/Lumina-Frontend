@@ -32,6 +32,7 @@ export function WorkspaceSwitcher() {
   // Synchronize active organization if the query parameters change externally
   useEffect(() => {
     if (orgs.length === 0) return
+    if (!searchParams) return
     const orgParam = searchParams.get('org')
     if (orgParam && activeOrg?.slug !== orgParam) {
       switchWorkspace(orgParam)
@@ -41,7 +42,7 @@ export function WorkspaceSwitcher() {
   const handleSelect = (slug: string) => {
     switchWorkspace(slug)
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(searchParams.toString())
+      const params = new URLSearchParams(searchParams?.toString() ?? '')
       if (slug) {
         params.set('org', slug)
       } else {
