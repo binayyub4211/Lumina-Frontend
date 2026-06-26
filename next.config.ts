@@ -5,7 +5,7 @@ const withSerwist = withSerwistInit({
   // The Serwist worker source is authored in TypeScript under app/sw.ts so
   // it can live next to the rest of the App Router tree. Serwist compiles
   // it down to public/sw.js during `next build`.
-  swSrc: "app/sw.ts",
+  swSrc: "src/app/sw.ts",
   swDest: "public/sw.js",
   // Disable the worker in development so HMR bundles are never cached —
   // the service worker would otherwise pin stale chunks and break the
