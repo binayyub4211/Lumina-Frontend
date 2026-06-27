@@ -1,0 +1,59 @@
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
+import { Providers } from "./providers";
+
+export const metadata: Metadata = {
+  title: "Lumina Network Dashboard",
+  description:
+    "Vesting vault, token stream, governance, and compliance dashboard for Lumina Network.",
+  applicationName: "Lumina Network Dashboard",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Lumina",
+  },
+  icons: {
+    icon: [
+      { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#0f766e" },
+    { media: "(prefers-color-scheme: dark)", color: "#115e59" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const blockingScript = `
+    (function(){try{var t=localStorage.getItem("lumina-theme");if(t==="solar"||t==="dark"){document.documentElement.classList.add(t)}}catch(e){}})();
+  `;
+
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: blockingScript }} />
+      </head>
+      <body className="antialiased">
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}

@@ -1,6 +1,7 @@
 import type { UnknownErrorTelemetryPayload } from "@/src/utils/errorDecoder";
 import { enqueueRequest, peekQueue, flushQueue } from "@/src/lib/offlineQueue";
 import { installOfflineSync } from "@/src/lib/offlineSync";
+import { enqueueError } from "@/src/lib/sentry/sentryClient";
 
 const TELEMETRY_ENDPOINT = "/api/telemetry/stellar-errors";
 
@@ -20,7 +21,13 @@ async function postPayload(
       keepalive: true,
     });
     if (!response.ok && response.status >= 500) {
-      throw new Error(`Server responded ${response.status}`);
+      const error = new Error(`Telemetry API 5xx response: ${response.status}`);
+      await enqueueError(error, {
+        component: "errorTelemetry",
+        tags: { endpoint: TELEMETRY_ENDPOINT, status: String(response.status) },
+        extra: { payload },
+      });
+      throw error;
     }
   } catch (telemetryError) {
     console.warn("Unable to report unknown Stellar error", telemetryError);

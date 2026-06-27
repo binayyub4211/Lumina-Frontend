@@ -11,7 +11,7 @@ async function mockFreighter(page: Page, publicKey: string) {
     ({ pk }: { pk: string }) => {
       let currentPk: string | null = pk;
 
-      (window as Record<string, unknown>).freighter = {
+      (window as unknown as Record<string, unknown>).freighter = {
         getUserInfo: async () => ({ publicKey: currentPk }),
         isConnected: async () => ({ isConnected: true }),
       };
@@ -21,7 +21,7 @@ async function mockFreighter(page: Page, publicKey: string) {
         window.dispatchEvent(new Event("accountChange"));
       }
 
-      (window as Record<string, unknown>).__switchWallet = (pk: string) => {
+      (window as unknown as Record<string, unknown>).__switchWallet = (pk: string) => {
         triggerAccountChange(pk);
       };
     },
@@ -53,7 +53,7 @@ test.describe("Wallet identity toggling", () => {
       for (const wallet of wallets) {
         await page.evaluate(
           ({ pk }: { pk: string }) =>
-            (window as Record<string, unknown>).__switchWallet(pk),
+            ((window as unknown as Record<string, unknown>).__switchWallet as (pk: string) => void)(pk),
           { pk: wallet },
         );
         await page.waitForTimeout(50);
@@ -64,7 +64,7 @@ test.describe("Wallet identity toggling", () => {
 
     await page.evaluate(
       ({ pk }: { pk: string }) =>
-        (window as Record<string, unknown>).__switchWallet(pk),
+        ((window as unknown as Record<string, unknown>).__switchWallet as (pk: string) => void)(pk),
       { pk: TEST_WALLETS.bob },
     );
     await page.waitForTimeout(100);
@@ -72,7 +72,7 @@ test.describe("Wallet identity toggling", () => {
 
     await page.evaluate(
       ({ pk }: { pk: string }) =>
-        (window as Record<string, unknown>).__switchWallet(pk),
+        ((window as unknown as Record<string, unknown>).__switchWallet as (pk: string) => void)(pk),
       { pk: TEST_WALLETS.carol },
     );
     await page.waitForTimeout(100);
@@ -98,7 +98,7 @@ test.describe("Wallet identity toggling", () => {
             : TEST_WALLETS.alice;
       await page.evaluate(
         ({ pk }: { pk: string }) =>
-          (window as Record<string, unknown>).__switchWallet(pk),
+          ((window as unknown as Record<string, unknown>).__switchWallet as (pk: string) => void)(pk),
         { pk: wallet },
       );
       await page.waitForTimeout(30);
@@ -106,7 +106,7 @@ test.describe("Wallet identity toggling", () => {
 
     await page.evaluate(
       ({ pk }: { pk: string }) =>
-        (window as Record<string, unknown>).__switchWallet(pk),
+        ((window as unknown as Record<string, unknown>).__switchWallet as (pk: string) => void)(pk),
       { pk: TEST_WALLETS.carol },
     );
     await page.waitForTimeout(200);
