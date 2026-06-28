@@ -20,7 +20,8 @@
     "test:e2e": "playwright test",
     "test:idb": "tsx src/lib/__tests__/idbClient.test.ts",
     "test:workspace": "tsx src/store/__tests__/workspaceStore.test.ts",
-    "test:all": "tsx src/lib/__tests__/offlineQueue.test.ts && tsx src/lib/__tests__/OptimisticTransactionManager.test.ts && tsx src/services/__tests__/localCache.test.ts && tsx src/lib/__tests__/txQueue.test.ts && tsx src/lib/__tests__/slidingWindow.test.ts && tsx src/lib/__tests__/idbClient.test.ts && tsx src/services/__tests__/sharedStateSync.test.ts && tsx src/store/__tests__/workspaceStore.test.ts"
+    "test:waterfall": "tsx src/lib/__tests__/invalidationRegistry.test.ts",
+    "test:all": "tsx src/lib/__tests__/offlineQueue.test.ts && tsx src/lib/__tests__/OptimisticTransactionManager.test.ts && tsx src/services/__tests__/localCache.test.ts && tsx src/lib/__tests__/txQueue.test.ts && tsx src/lib/__tests__/slidingWindow.test.ts && tsx src/lib/__tests__/idbClient.test.ts && tsx src/services/__tests__/sharedStateSync.test.ts && tsx src/store/__tests__/workspaceStore.test.ts && tsx src/lib/__tests__/invalidationRegistry.test.ts"
   },
   "dependencies": {
     "@serwist/next": "^9.5.11",

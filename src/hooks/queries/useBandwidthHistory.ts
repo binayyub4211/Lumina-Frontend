@@ -10,6 +10,8 @@ export function useBandwidthHistory(orgId?: string) {
       })
       return response.data
     },
-    staleTime: 5000,
+    // Real-time chart: short stale-while-revalidate window (2s hard ceiling).
+    staleTime: 2_000,
+    gcTime: 30_000,
   })
 }

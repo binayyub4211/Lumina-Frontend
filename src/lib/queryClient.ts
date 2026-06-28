@@ -15,6 +15,9 @@ export function createQueryClient() {
     defaultOptions: {
       queries: {
         staleTime: 30_000,
+        // Garbage-collect cache entries 30s after they go unused, regardless of
+        // subscriptions (Technical Invariants & Bounds).
+        gcTime: 30_000,
         retry: 1,
         refetchOnWindowFocus: false,
       },

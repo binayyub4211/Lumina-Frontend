@@ -11,5 +11,6 @@ export function useAlertList(orgId?: string) {
       return response.data
     },
     staleTime: 5000,
+    gcTime: 30_000,
   })
 }
