@@ -8,6 +8,11 @@ import {
   type OperationCompletePayload,
   type SharedStateMessage,
 } from "@/src/services/sharedStateSync";
+import {
+  groupOfKey,
+  isRegisteredGroup,
+  runInvalidationWaterfall,
+} from "@/src/lib/invalidationRegistry";
 
 export function useSharedStateQuerySync(): void {
   const queryClient = useQueryClient();
@@ -72,6 +77,16 @@ function invalidateOperationCache(
   payload: OperationCompletePayload,
 ): void {
   if (!payload.queryKey) return;
+
+  // If the completed operation touched a node-status-derived group, run the
+  // topological waterfall so dependents (bandwidth → alerts) refresh in order
+  // instead of cascading ad-hoc. Otherwise fall back to a plain invalidation.
+  const group = groupOfKey(payload.queryKey);
+  if (group && isRegisteredGroup(group)) {
+    void runInvalidationWaterfall(queryClient, payload.queryKey);
+    return;
+  }
+
   queryClient.invalidateQueries({ queryKey: payload.queryKey });
 }
 
