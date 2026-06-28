@@ -10,7 +10,8 @@ test.describe('BLE Provisioning Flow', () => {
         addEventListener: function(event, cb) { this._cb = cb; },
         removeEventListener: function() {},
         simulateNotification: function(val) {
-          if (this._cb) this._cb({ target: this, value: val });
+          this.value = new DataView(val.buffer);
+          if (this._cb) this._cb({ target: this });
         },
       };
 
@@ -58,7 +59,7 @@ test.describe('BLE Provisioning Flow', () => {
     await page.getByText('Scan for Devices').click();
     
     // Should move to configure step
-    await expect(page.getByText('Configuration')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Configuration' })).toBeVisible();
 
     // Step 2: Configure
     await page.getByText('Write Config').click();
